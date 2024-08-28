@@ -3,6 +3,7 @@ const app = require("../server/app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data/index");
+const endpoints = require('../endpoints.json');
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -19,6 +20,19 @@ describe("Get /api/topics", () => {
           expect(topic).toHaveProperty("slug");
           expect(topic).toHaveProperty("description");
         });
+      });
+  });
+
+  test("", () => {});
+});
+
+describe("'Get /api", () => {
+  test("status should be 200 responding with all available API endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then((res) => {
+        expect(res.body).toEqual(endpoints);
       });
   });
 });

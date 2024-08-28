@@ -5,3 +5,4 @@ exports.fetchAllTopics = () => {
         return result.rows;
     })
 }
+
