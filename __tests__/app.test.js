@@ -3,7 +3,7 @@ const app = require("../server/app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data/index");
-const endpoints = require('../endpoints.json');
+const endpoints = require("../endpoints.json");
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -33,6 +33,35 @@ describe("'Get /api", () => {
       .expect(200)
       .then((res) => {
         expect(res.body).toEqual(endpoints);
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id", () => {
+  test("status 200, responds with the correct article for a valida ID", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then((res) => {
+        expect(res.body.article).toHaveProperty("article_id", 1);
+      });
+  });
+
+  test("status 404, responds with an error if the article is not found", () => {
+    return request(app)
+      .get("/api/articles/9999")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("Article not found");
+      });
+  });
+
+  test("status 400, responds with an error if article ID is invalid", () => {
+    return request(app)
+      .get("/api/articles/not-a-number")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Bad Request");
       });
   });
 });
