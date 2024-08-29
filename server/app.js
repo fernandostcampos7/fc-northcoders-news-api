@@ -1,5 +1,8 @@
 const express = require("express");
-const { getAllTopics, getArticleById } = require("./controllers/nc_news_controller");
+const {
+  getAllTopics,
+  getArticleById,
+} = require("./controllers/nc_news_controller");
 const endpoints = require("../endpoints.json");
 const app = express();
 
@@ -17,7 +20,6 @@ app.use((err, req, res, next) => {
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
   } else {
-    console.log(err);
     res.status(500).send({ msg: "Internal Server Error" });
   }
 });

@@ -1,5 +1,5 @@
 const articles = require("../../db/data/test-data/articles");
-const { fetchAllTopics, fetchArticleByID } = require("../models/nc_news_model");
+const { fetchAllTopics, fetchArticleById } = require("../models/nc_news_model");
 
 exports.getAllTopics = (req, res, next) => {
   fetchAllTopics()
@@ -13,18 +13,14 @@ exports.getAllTopics = (req, res, next) => {
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
+  console.log("Controller received article_id:", article_id);
 
-  if (isNaN(article_id)) {
-    return res.status(400).send({ msg: "Bad Request" });
-  }
-  
-  fetchArticleByID(article_id)
-  .then((article) => {
-    res.status(200).send({ article });
-  })
-  .catch((err) => {
-
-  
+  fetchArticleById(article_id)
+    .then((article) => {
+      console.log("Article found sucessfully");
+      res.status(200).send({ article });
+    })
+    .catch((err) => {
       next(err);
     });
 };

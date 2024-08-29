@@ -5,6 +5,7 @@ const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data/index");
 const endpoints = require("../endpoints.json");
 
+
 beforeEach(() => seed(data));
 afterAll(() => db.end());
 
@@ -73,3 +74,19 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 });
+
+// describe("GET /api/articles", () => {
+
+//   test(
+//     "should return status 200 and respond with articles array of articles objects based on specified proprieties", () => {
+//       return request(app)
+//       .get("/api/articles")
+//       .expect(200)
+//       .then((res) => {
+//         expect().
+
+      
+//     }
+// });
+
+// });
