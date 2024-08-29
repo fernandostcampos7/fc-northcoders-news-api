@@ -38,12 +38,20 @@ describe("'Get /api", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("status 200, responds with the correct article for a valida ID", () => {
+  test("status 200, responds with the correct article for a valid ID", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
       .then((res) => {
-        expect(res.body.article).toHaveProperty("article_id", 1);
+        const { article } = res.body;
+        expect(article).toHaveProperty("author");
+        expect(article).toHaveProperty("title");
+        expect(article).toHaveProperty("article_id", 1);
+        expect(article).toHaveProperty("body");
+        expect(article).toHaveProperty("topic");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes");
+        expect(article).toHaveProperty("article_img_url");
       });
   });
 
