@@ -1,0 +1,7 @@
+{
+  "plugins": ["prettier-plugin-sql"],
+  "sqlFormatOptions": {
+    "language": "postgresql", 
+    "keywordCase": "uppercase"  
+  }
+}

@@ -1,5 +1,9 @@
 const articles = require("../../db/data/test-data/articles");
-const { fetchAllTopics, fetchArticleById } = require("../models/nc_news_model");
+const {
+  fetchAllTopics,
+  fetchArticleById,
+  fetchAllArticles,
+} = require("../models/nc_news_model");
 
 exports.getAllTopics = (req, res, next) => {
   fetchAllTopics()
@@ -13,12 +17,22 @@ exports.getAllTopics = (req, res, next) => {
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
-  console.log("Controller received article_id:", article_id);
 
   fetchArticleById(article_id)
     .then((article) => {
-      console.log("Article found sucessfully");
       res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getAllArticles = (req, res, next) => {
+  const {sort_by, order} = req.query;
+  fetchAllArticles(sort_by, order)
+    .then((articles) => {
+      console.log("All the articles gathered successfully");
+      res.status(200).send({ articles });
     })
     .catch((err) => {
       next(err);
