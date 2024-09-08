@@ -79,7 +79,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then((res) => {
         const { articles } = res.body;
-        console.log(res.body, "{articles}");
+
         expect(Array.isArray(articles)).toBe(true);
         articles.forEach((article) => {
           expect(article).toHaveProperty("author");
@@ -98,8 +98,6 @@ describe("GET /api/articles", () => {
           const nextArticleDate = new Date(
             articles[i + 1].created_at,
           ).getTime();
-
-          console.log(currentArticleDate, nextArticleDate);
 
           expect(currentArticleDate).toBeGreaterThanOrEqual(nextArticleDate);
         }
@@ -120,5 +118,111 @@ describe("GET /api/articles", () => {
         expect(res.body).toEqual({ msg: "Bad Request: Invalid order value" });
       });
     return Promise.all([invalidSortByRequest, invalidOrderRequest]);
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("Status 200, responds with an array of comments for a given article_id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((res) => {
+        const { comments } = res.body;
+        expect(Array.isArray(comments)).toBe(true);
+        comments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id");
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("author");
+          expect(comment).toHaveProperty("body");
+          expect(comment).toHaveProperty("article_id");
+        });
+      });
+  });
+
+  test("Status 400, responds with an error when provided an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/one/comments")
+      .expect(400)
+      .then((res) => {
+        expect(res.body).toEqual({ msg: "Bad Request: Invalid article_id" });
+      });
+  });
+
+  test("Status 404, responds with an error when comment not displayed due to id not found", () => {
+    return request(app)
+      .get("/api/articles/9999/comments")
+      .expect(404)
+      .then((res) => {
+        expect(res.body).toEqual({ msg: "Comment not found" });
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("Status 201, responds with a commet posted to one valid article id", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "This is the icellusedkars new comment!",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then((res) => {
+        const { comment } = res.body;
+        expect(comment).toHaveProperty("comment_id");
+        expect(comment).toHaveProperty("votes");
+        expect(comment).toHaveProperty("created_at");
+        expect(comment).toHaveProperty("author", newComment.username);
+        expect(comment).toHaveProperty("body", newComment.body);
+        expect(comment).toHaveProperty("article_id", 1);
+      });
+  });
+
+  test("Status 400, error if article_id is not valid", () => {
+    const newComment = {
+      username: "tickle122",
+      body: "This is a test comment",
+    };
+    return request(app)
+      .post("/api/articles/invalid_id/comments")
+      .send(newComment)
+      .expect(400)
+      .then((res) => {
+        expect(res.body).toEqual({ msg: "Bad Request: Invalid article_id" });
+      });
+  });
+
+  test("Status 400, error if username or body is missing", () => {
+    const invalidNewComment = {
+      username: "tickle122",
+      // body missing
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(invalidNewComment)
+      .expect(400)
+      .then((res) => {
+        expect(res.body).toEqual({
+          msg: "Bad Request: Missing required fields",
+        });
+      });
+  });
+
+  test("Status 422, error if username does not exist", () => {
+    const newComment = {
+      username: "non-existent-user",
+      body: "This is a test comment",
+    };
+
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send(newComment)
+    .expect(422)
+    .then((res) =>{
+      expect(res.body).toEqual({msg: "Unprocessable Entity: Username does not exist"})
+    })
   });
 });

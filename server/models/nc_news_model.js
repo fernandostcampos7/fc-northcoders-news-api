@@ -48,7 +48,6 @@ exports.fetchAllArticles = (sort_by = "created_at", order = "desc") => {
   const validOrderValues = ["asc", "desc"];
 
   if (!validSortByFields.includes(sort_by)) {
-    console.log(`Invalid sort_by detected: ${sort_by}`);
     return Promise.reject({
       status: 400,
       msg: "Bad Request: Invalid sort key",
@@ -56,7 +55,6 @@ exports.fetchAllArticles = (sort_by = "created_at", order = "desc") => {
   }
 
   if (!validOrderValues.includes(order)) {
-    console.log(`Invalid order detected: ${order}`);
     return Promise.reject({
       status: 400,
       msg: "Bad Request: Invalid order value",
@@ -85,5 +83,70 @@ exports.fetchAllArticles = (sort_by = "created_at", order = "desc") => {
 
   return db.query(queryStr).then((result) => {
     return result.rows;
+  });
+};
+
+exports.fetchCommentsByArticleId = (article_id) => {
+  const id = Number(article_id);
+  if (isNaN(id)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request: Invalid article_id",
+    });
+  }
+
+  const queryStr = `SELECT   comment_id,
+  votes,
+  created_at,
+  author,
+  body,
+  article_id  FROM comments WHERE article_id = $1`;
+
+  const queryValues = [article_id];
+
+  return db.query(queryStr, queryValues).then((result) => {
+    if (result.rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Comment not found" });
+    }
+    return result.rows;
+  });
+};
+
+exports.insertCommentByArticleId = (article_id, newComment) => {
+  const { username, body } = newComment;
+
+  if (isNaN(Number(article_id))) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request: Invalid article_id",
+    });
+  }
+
+  if (!username || !body) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request: Missing required fields",
+    });
+  }
+
+  const userQuery = "SELECT username FROM users WHERE username = $1";
+
+  return db.query(userQuery, [username]).then((userResult) => {
+    if (userResult.rows.length === 0) {
+      return Promise.reject({
+        status: 422,
+        msg: "Unprocessable Entity: Username does not exist",
+      });
+    }
+
+    const queryStr = `INSERT INTO comments (article_id, author, body)
+  VALUES ($1, $2, $3)
+  RETURNING comment_id, votes, created_at, author, body, article_id`;
+
+    const queryValues = [article_id, username, body];
+
+    return db.query(queryStr, queryValues).then((result) => {
+      return result.rows[0];
+    });
   });
 };

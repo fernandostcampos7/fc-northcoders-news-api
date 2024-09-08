@@ -3,6 +3,8 @@ const {
   getAllTopics,
   getArticleById,
   getAllArticles,
+  getCommentsByArticleId,
+  postCommentByArticleId,
 } = require("./controllers/nc_news_controller");
 const endpoints = require("../endpoints.json");
 const app = express();
@@ -16,6 +18,8 @@ app.get("/api", (req, res) => {
 });
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getAllArticles);
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+app.post("/api/articles/:article_id/comments", postCommentByArticleId)
 
 // General error handling middleware
 app.use((err, req, res, next) => {
@@ -27,5 +31,6 @@ app.use((err, req, res, next) => {
     res.status(500).send({ msg: "Internal Server Error" });
   }
 });
+
 
 module.exports = app;
