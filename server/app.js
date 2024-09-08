@@ -5,6 +5,7 @@ const {
   getAllArticles,
   getCommentsByArticleId,
   postCommentByArticleId,
+  patchVotesByArticleId,
 } = require("./controllers/nc_news_controller");
 const endpoints = require("../endpoints.json");
 const app = express();
@@ -19,7 +20,8 @@ app.get("/api", (req, res) => {
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
-app.post("/api/articles/:article_id/comments", postCommentByArticleId)
+app.post("/api/articles/:article_id/comments", postCommentByArticleId);
+app.patch("/api/articles/:article_id", patchVotesByArticleId);
 
 // General error handling middleware
 app.use((err, req, res, next) => {
@@ -31,6 +33,5 @@ app.use((err, req, res, next) => {
     res.status(500).send({ msg: "Internal Server Error" });
   }
 });
-
 
 module.exports = app;
