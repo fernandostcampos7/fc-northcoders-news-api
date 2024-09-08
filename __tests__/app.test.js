@@ -218,11 +218,30 @@ describe("POST /api/articles/:article_id/comments", () => {
     };
 
     return request(app)
-    .post("/api/articles/1/comments")
-    .send(newComment)
-    .expect(422)
-    .then((res) =>{
-      expect(res.body).toEqual({msg: "Unprocessable Entity: Username does not exist"})
-    })
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(422)
+      .then((res) => {
+        expect(res.body).toEqual({
+          msg: "Unprocessable Entity: Username does not exist",
+        });
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("Status 200: responds with updated article when provided with valid article_id and inc_votes", () => {
+    const updateVotes = { inc_votes: 10 };
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send(updateVotes)
+      .expect(200)
+      .then((res) => {
+        const { article } = res.body;
+        expect(article).toHaveProperty("article_id", 1);
+        expect(article).toHaveProperty("votes");
+        expect(article.votes).toBeGreaterThan(0);
+      });
   });
 });
