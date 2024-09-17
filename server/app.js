@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const {
   getAllTopics,
   getArticleById,
@@ -9,6 +10,8 @@ const {
 } = require("./controllers/nc_news_controller");
 const endpoints = require("../endpoints.json");
 const app = express();
+
+app.use(cors()); //To avoid conflicts regaring Cross Origin Resource Sharing
 
 app.use(express.json());
 
@@ -25,7 +28,7 @@ app.patch("/api/articles/:article_id", patchVotesByArticleId);
 
 // General error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  // console.error(err.stack);
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
   } else {
