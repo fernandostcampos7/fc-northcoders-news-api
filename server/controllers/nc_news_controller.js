@@ -6,6 +6,7 @@ const {
   fetchCommentsByArticleId,
   insertCommentByArticleId,
   updateArticleVotes,
+  updateArticleVoteCount,
 } = require("../models/nc_news_model");
 
 exports.getAllTopics = (req, res, next) => {
@@ -70,3 +71,15 @@ exports.patchVotesByArticleId = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.patchArticleVotes = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+
+  updateArticleVoteCount(article_id, inc_votes)
+    .then((updatedArticle) => {
+      res.status(200).send({ article: updatedArticle });
+    })
+    .catch(next);
+};
+

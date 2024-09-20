@@ -171,9 +171,43 @@ exports.updateArticleVotes = (article_id, inc_votes) => {
     if (result.rows.length === 0) {
       return Promise.reject({
         status: 404,
-        msg: "Not Found - Article not found",
+        msg: "Article not found",
       });
     }
     return result.rows[0];
   });
 };
+
+exports.updateArticleVoteCount = (article_id, inc_votes) => {
+  // Check if article_id is a valid number
+  if (isNaN(article_id)) {
+    return Promise.reject({
+      status: 404,
+      msg: "Not Found - Invalid article ID",
+    });
+  }
+
+  // Validate inc_votes
+  if (typeof inc_votes !== "number") {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request - inc_votes must be a number",
+    });
+  }
+
+  const queryStr = `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *;
+  `;
+  const queryValues = [inc_votes, article_id];
+
+  return db.query(queryStr, queryValues).then((result) => {
+    if (result.rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Article not found" });
+    }
+    return result.rows[0];
+  });
+};
+
