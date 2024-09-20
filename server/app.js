@@ -28,7 +28,11 @@ app.patch("/api/articles/:article_id", patchVotesByArticleId);
 
 // General error handling middleware
 app.use((err, req, res, next) => {
+  console.log(err);
   // console.error(err.stack);
+  if (err.code === "22P02") {
+    res.status(400).send({ msg: "Bad request - Invalid article_id" });
+  }
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
   } else {

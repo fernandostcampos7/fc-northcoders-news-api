@@ -14,16 +14,16 @@ exports.fetchArticleById = (articleId) => {
 
   return db
     .query(
-      `SELECT 
-        author, 
-        title, 
-        article_id, 
-        body, 
-        topic, 
-        created_at, 
-        votes, 
-        article_img_url 
-     FROM articles 
+      `SELECT
+        author,
+        title,
+        article_id,
+        body,
+        topic,
+        created_at,
+        votes,
+        article_img_url
+     FROM articles
      WHERE article_id = $1`,
       [articleId],
     )
@@ -62,7 +62,7 @@ exports.fetchAllArticles = (sort_by = "created_at", order = "desc") => {
   }
 
   const queryStr = `
-    SELECT 
+    SELECT
       articles.article_id,
       articles.title,
       articles.topic,
@@ -71,13 +71,13 @@ exports.fetchAllArticles = (sort_by = "created_at", order = "desc") => {
       articles.votes,
       articles.article_img_url,
       COUNT(comments.comment_id) AS comment_count
-    FROM 
+    FROM
       articles
-    LEFT JOIN 
+    LEFT JOIN
       comments ON comments.article_id = articles.article_id
-    GROUP BY 
+    GROUP BY
       articles.article_id
-    ORDER BY 
+    ORDER BY
       ${sort_by} ${order};
   `;
 
@@ -152,15 +152,28 @@ exports.insertCommentByArticleId = (article_id, newComment) => {
 };
 
 exports.updateArticleVotes = (article_id, inc_votes) => {
+  if (typeof inc_votes !== "number") {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request - inc_votes required",
+    });
+  }
+
   const queryStr = `
-  UPDATE articles
-  SET votes = votes + $1
-  WHERE article_id = $2
-  RETURNING article_id, title, body, topic, author, created_at, votes, article_img_url;
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING article_id, title, body, topic, author, created_at, votes, article_img_url;
   `;
   const queryValues = [inc_votes, article_id];
 
   return db.query(queryStr, queryValues).then((result) => {
+    if (result.rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "Not Found - Article not found",
+      });
+    }
     return result.rows[0];
   });
 };
